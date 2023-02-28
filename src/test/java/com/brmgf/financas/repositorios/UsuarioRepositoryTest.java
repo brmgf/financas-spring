@@ -27,7 +27,7 @@ public class UsuarioRepositoryTest {
 	}
 	
 	@Test
-	public void deveRetornarFalsoEmailNaoCadastrado() {
+	public void deveRetornarFalsoQuandoEmailNaoCadastrado() {
 		repository.deleteAll();
 		
 		boolean existeUsuario = repository.existsByEmail("email@email.com.br");

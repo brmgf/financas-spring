@@ -18,12 +18,14 @@ import javax.persistence.Table;
 import org.springframework.data.jpa.convert.threeten.Jsr310JpaConverters;
 
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name = "lancamento", schema = "financas")
 @Builder
-@Data
+@Getter
+@Setter
 public class Lancamento {
 	
 	@Id
