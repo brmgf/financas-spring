@@ -1,8 +1,13 @@
 package com.brmgf.financas.servico.impl;
 
+import java.util.Optional;
+
+import javax.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.brmgf.financas.exceptions.AutenticacaoException;
 import com.brmgf.financas.exceptions.CadastroException;
 import com.brmgf.financas.modelo.Usuario;
 import com.brmgf.financas.repositorios.UsuarioRepository;
@@ -21,14 +26,22 @@ public class UsuarioServiceImpl implements UsuarioService {
 
 	@Override
 	public Usuario autenticar(String email, String senha) {
-		// TODO Auto-generated method stub
-		return null;
+		Optional<Usuario> usuarioOptional = repository.findByEmail(email);
+		
+		if(!usuarioOptional.isPresent())
+			throw new AutenticacaoException("Usuario não encontrado.");
+		
+		if(!usuarioOptional.get().getSenha().equals(senha))
+			throw new AutenticacaoException("Credenciais inválidas.");
+		
+		return usuarioOptional.get();
 	}
 
 	@Override
+	@Transactional
 	public Usuario salvar(Usuario usuario) {
-		// TODO Auto-generated method stub
-		return null;
+		validarEmail(usuario.getEmail());
+		return repository.save(usuario);
 	}
 
 	@Override
