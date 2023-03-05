@@ -1,17 +1,22 @@
 package com.brmgf.financas.servico;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -26,15 +31,12 @@ import com.brmgf.financas.servico.impl.UsuarioServiceImpl;
 @TestInstance(Lifecycle.PER_CLASS)
 public class UsuarioServiceTest {
 
-	UsuarioService service;
+	@SpyBean
+	UsuarioServiceImpl service;
 	
 	@MockBean
 	UsuarioRepository repository;
 	
-	@BeforeAll
-	public void setUp() {
-		service = new UsuarioServiceImpl(repository);
-	}
 	
 	@Test
 	public void deveValidarEmailNaoCadastrado() {
@@ -80,6 +82,35 @@ public class UsuarioServiceTest {
 		
 		Throwable exception = Assertions.catchThrowable(() -> service.autenticar("email@email.com", "1234"));
 		Assertions.assertThat(exception).isInstanceOfAny(AutenticacaoException.class).hasMessage("Senha inválida");	
+	}
+	
+	@Test
+	public void deveSalvarUsuario() {
+		Usuario usuario = Usuario.builder()
+				.id(1l)
+				.nome("Maria")
+				.email("maria@email.com.br")
+				.senha("123")
+				.build();
+		
+		doNothing().when(service).validarEmail(anyString());
+		when(repository.save(any(Usuario.class))).thenReturn(usuario);
+		
+		Usuario usuarioSalvo = service.salvar(new Usuario());
+		Assertions.assertThat(usuarioSalvo.getId()).isEqualTo(1l);
+		Assertions.assertThat(usuarioSalvo.getNome()).isEqualTo("Maria");
+		Assertions.assertThat(usuarioSalvo.getEmail()).isEqualTo("maria@email.com.br");
+		Assertions.assertThat(usuarioSalvo.getSenha()).isEqualTo("123");
+	}
+	
+	@Test
+	public void deveLancarErroAoTentarSalvarUsuarioJaCadastrado() {
+		String email = "email@email.com.br";
+		Usuario usuario = Usuario.builder().email(email).build();
+		
+		doThrow(CadastroException.class).when(service).validarEmail(email);
+		
+		verify(repository, never()).save(usuario);
 	}
 	
 }
