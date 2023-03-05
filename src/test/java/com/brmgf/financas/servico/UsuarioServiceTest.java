@@ -1,45 +1,49 @@
 package com.brmgf.financas.servico;
 
 import static org.junit.Assert.assertThrows;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Profile;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.brmgf.financas.exceptions.CadastroException;
-import com.brmgf.financas.modelo.Usuario;
 import com.brmgf.financas.repositorios.UsuarioRepository;
+import com.brmgf.financas.servico.impl.UsuarioServiceImpl;
 
-@SpringBootTest
 @ExtendWith(SpringExtension.class)
-@Profile("test")
+@ActiveProfiles("test")
+@TestInstance(Lifecycle.PER_CLASS)
 public class UsuarioServiceTest {
 
-	@Autowired
 	UsuarioService service;
 	
-	@Autowired
+	@MockBean
 	UsuarioRepository repository;
 	
-	@Test
-	public void deveValidarEmailComSucesso() {
-		repository.deleteAll();
-		service.validarEmail("email@email.com.br");
+	@BeforeAll
+	public void setUp() {
+		service = new UsuarioServiceImpl(repository);
 	}
 	
 	@Test
-	public void deveLancarErroAoValidarEmailJaCadastrado() {
-		
+	public void deveValidarEmailNaoCadastrado() {
+		when(repository.existsByEmail(anyString())).thenReturn(false);
+		service.validarEmail(anyString());
+	}
+	
+	@Test
+	public void deveLancarErroAoValidarEmailJaCadastrado() {	
+		when(repository.existsByEmail(anyString())).thenReturn(true);
 		assertThrows(CadastroException.class, () -> { 
-			Usuario usuario = Usuario.builder().id(anyLong()).email("email@email.com.br").build();
-			repository.save(usuario);
-			service.validarEmail(usuario.getEmail());
+			service.validarEmail(anyString());
 			}
-		);
-		
+		);		
 	}
 }
