@@ -1,4 +1,4 @@
-package com.brmgf.financas.api;
+package com.brmgf.financas.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,15 +13,14 @@ import com.brmgf.financas.exceptions.CadastroException;
 import com.brmgf.financas.modelo.Usuario;
 import com.brmgf.financas.servico.UsuarioService;
 
+import lombok.RequiredArgsConstructor;
+
 @RestController
 @RequestMapping("/api/usuarios")
+@RequiredArgsConstructor
 public class UsuarioController {
 	
-	private UsuarioService service;
-	
-	public UsuarioController(UsuarioService service) {
-		this.service = service;
-	}
+	private final UsuarioService service;
 
 	@PostMapping("/novo")
 	public ResponseEntity salvar(@RequestBody UsuarioDto dto) {

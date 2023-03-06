@@ -1,5 +1,7 @@
 package com.brmgf.financas.servico;
 
+import java.util.Optional;
+
 import com.brmgf.financas.modelo.Usuario;
 
 public interface UsuarioService {
@@ -10,5 +12,6 @@ public interface UsuarioService {
 	
 	void validarEmail(String email);
 	
+	Optional<Usuario> buscaUsuarioPorId(Long id);
 	
 }

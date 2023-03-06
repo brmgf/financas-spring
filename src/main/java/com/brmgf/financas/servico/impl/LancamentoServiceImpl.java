@@ -3,6 +3,7 @@ package com.brmgf.financas.servico.impl;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
@@ -82,6 +83,11 @@ public class LancamentoServiceImpl implements LancamentoService {
 		
 		if(Objects.isNull(lancamento.getTipoLancamento()))
 			throw new LancamentoException("Informe um tipo para lançamento");
+	}
+
+	@Override
+	public Optional<Lancamento> buscaLancamentoPorId(Long id) {
+		return repository.findById(id);
 	}
 
 }
