@@ -16,12 +16,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.brmgf.financas.dto.AtualizaStatusDto;
 import com.brmgf.financas.dto.LancamentoDto;
 import com.brmgf.financas.enums.StatusLancamento;
 import com.brmgf.financas.exceptions.CadastroException;
 import com.brmgf.financas.exceptions.LancamentoException;
 import com.brmgf.financas.modelo.Lancamento;
-import com.brmgf.financas.modelo.TipoLancamento;
+import com.brmgf.financas.enums.TipoLancamento;
 import com.brmgf.financas.modelo.Usuario;
 import com.brmgf.financas.servico.LancamentoService;
 import com.brmgf.financas.servico.UsuarioService;
@@ -88,6 +89,22 @@ public class LancamentoController {
 		lancamentoFiltro.setUsuario(usuarioOptional.get());
 		List<Lancamento> lancamentosFiltrados = service.buscar(lancamentoFiltro);
 		return ResponseEntity.ok(lancamentosFiltrados);
+	}
+	
+	@PutMapping("{id}/atualizar-status")
+	public ResponseEntity atualizarStatus(@PathVariable("id") Long id, @RequestBody AtualizaStatusDto dto) {
+		return service.buscaLancamentoPorId(id).map(entidadeLancamento -> {
+			StatusLancamento status = StatusLancamento.valueOf(dto.getStatus());
+			if(status == null)
+				return ResponseEntity.badRequest().body("Não foi possível atualizar o status do lancamento");
+			try {
+				entidadeLancamento.setStatusLancamento(status);
+				service.atualizar(entidadeLancamento);
+				return ResponseEntity.ok(entidadeLancamento);
+			} catch(LancamentoException e) {
+				return ResponseEntity.badRequest().body(e.getMessage());
+			}
+		}).orElseGet(() -> new ResponseEntity("Lançamento não encontrado", HttpStatus.BAD_REQUEST));
 	}
 	
 	private Lancamento converter(LancamentoDto dto) {
