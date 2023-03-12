@@ -26,14 +26,6 @@ public class UsuarioRepositoryTest {
 	
 	@Autowired
 	TestEntityManager entityManager;
-	
-	public static Usuario criaUsuario() {
-		return Usuario.builder()
-				.nome("test")
-				.email("email@email.com.br")
-				.senha("123")
-				.build();
-	}
 
 	@Test
 	public void deveVerificarExistenciaDeUmEmail() {
@@ -70,6 +62,14 @@ public class UsuarioRepositoryTest {
 	public void deveRetornarFalsoAoBuscaUmUsuarioPorEmailNaoCadastrado() {		
 		Optional<Usuario> usuarioOptional = repository.findByEmail("teste@email.com.br");
 		Assertions.assertThat(usuarioOptional.isPresent()).isFalse();
+	}
+	
+	public static Usuario criaUsuario() {
+		return Usuario.builder()
+				.nome("test")
+				.email("email@email.com.br")
+				.senha("123")
+				.build();
 	}
 
 }
